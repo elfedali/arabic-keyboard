@@ -1,0 +1,51 @@
+{
+  "name": "Arabic Online Keyboard - لوحة المفاتيح العربية",
+  "short_name": "Arabic Keyboard",
+  "description": "Free online Arabic keyboard for typing in Arabic with virtual keyboard, copy, search, and download features.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "categories": ["utilities", "productivity", "education"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Arabic Keyboard Desktop View"
+    },
+    {
+      "src": "/screenshot-narrow.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Arabic Keyboard Mobile View"
+    }
+  ],
+  "features": [
+    "Virtual Arabic Keyboard",
+    "Text Copy and Download",
+    "Google Search Integration",
+    "YouTube Search Integration",
+    "RTL Text Support",
+    "Mobile Responsive"
+  ]
+}
