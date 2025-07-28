@@ -2,22 +2,40 @@ import { useState, useEffect } from 'react';
 import { Button } from "./components/ui/button";
 import { Textarea } from "./components/ui/textarea";
 import { LazyArabicKeyboard } from "./components/LazyArabicKeyboard";
+import { HistoryModal } from "./components/HistoryModal";
 import { useTextEditor } from "./hooks/useTextEditor";
-import { Copy, Download, Trash2, Search, Youtube } from "lucide-react";
+import { Copy, Download, Trash2, Search, Youtube, RefreshCw, ToggleLeft, ToggleRight, Clock, Save } from "lucide-react";
 
 function App() {
   const {
     text,
     setText,
+    setTextDirectly,
+    manualSave,
     textareaRef,
     insertText,
     handleBackspace,
     copyToClipboard,
     searchInGoogle,
     searchInYouTube,
+    convertToArabic,
+    isAutoConvertEnabled,
+    toggleAutoConvert,
   } = useTextEditor();
 
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  // Calculate word count and dynamic font size
+  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+  
+  const getDynamicFontSize = (words: number) => {
+    if (words < 10) return 'text-2xl'; // 24px - Large for short texts
+    if (words < 15) return 'text-xl';  // 20px - Medium-large
+    if (words < 20) return 'text-lg';  // 18px - Medium
+    if (words < 30) return 'text-base'; // 16px - Normal
+    return 'text-sm'; // 14px - Small for long texts
+  };
 
   // Update page title dynamically based on text content
   useEffect(() => {
@@ -66,138 +84,181 @@ function App() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Arabic Online Keyboard
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Type in Arabic using the virtual keyboard below | اكتب باللغة العربية باستخدام لوحة المفاتيح الافتراضية أدناه
-          </p>
-          <p className="text-gray-500 text-sm mt-2">
-            Free online Arabic keyboard with Google search, YouTube search, copy and download features
-          </p>
-        </header>
+    <main className="min-h-screen bg-gray-50 p-4">
+      {/* Header */}
+      <header className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Arabic Online Keyboard
+        </h1>
+        <p className="text-gray-600 text-lg">
+          Type in Arabic using standard QWERTY layout | اكتب باللغة العربية باستخدام تخطيط QWERTY
+        </p>
+      </header>
 
-        {/* Text Area Section */}
-        <section className="bg-white rounded-lg shadow-lg p-6 mb-6" aria-label="Arabic Text Editor">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Text Editor | محرر النصوص</h2>
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopy}
-                className={`${copySuccess ? 'bg-green-50 border-green-300' : ''}`}
-              >
-                <Copy className="w-4 h-4 mr-2" />
-                {copySuccess ? 'Copied!' : 'Copy'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDownload}
-                disabled={!text.trim()}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={searchInGoogle}
-                disabled={!text.trim()}
-                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-              >
-                <Search className="w-4 h-4 mr-2" />
-                Google
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={searchInYouTube}
-                disabled={!text.trim()}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <Youtube className="w-4 h-4 mr-2" />
-                YouTube
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClear}
-                disabled={!text.trim()}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Clear
-              </Button>
+      {/* Split Screen Layout */}
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-200px)] gap-4">
+        {/* Left Side - Text Editor (50%) */}
+        <section className="w-full lg:w-1/2 bg-white rounded-lg shadow border flex flex-col" aria-label="Arabic Text Editor">
+          <div className="p-4 border-b">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <h2 className="text-lg font-semibold text-gray-900">Text Editor | محرر النصوص</h2>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsHistoryOpen(true)}
+                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  History
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={manualSave}
+                  disabled={!text.trim()}
+                  className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleAutoConvert}
+                  className={isAutoConvertEnabled ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}
+                >
+                  {isAutoConvertEnabled ? <ToggleRight className="w-4 h-4 mr-2" /> : <ToggleLeft className="w-4 h-4 mr-2" />}
+                  Auto Convert {isAutoConvertEnabled ? 'ON' : 'OFF'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopy}
+                  className={copySuccess ? 'bg-green-50 border-green-300' : ''}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  {copySuccess ? 'Copied!' : 'Copy'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownload}
+                  disabled={!text.trim()}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={searchInGoogle}
+                  disabled={!text.trim()}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Google
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={searchInYouTube}
+                  disabled={!text.trim()}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Youtube className="w-4 h-4 mr-2" />
+                  YouTube
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={convertToArabic}
+                  disabled={!text.trim()}
+                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Convert
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClear}
+                  disabled={!text.trim()}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Clear
+                </Button>
+              </div>
             </div>
           </div>
 
-          <Textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Start typing in Arabic... أبدأ بالكتابة باللغة العربية"
-            className="min-h-[200px] text-lg leading-relaxed arabic-text"
-            dir="rtl"
-            lang="ar"
-          />
-
-          <div className="mt-2 text-sm text-gray-500 flex justify-between">
-            <span>Characters: {text.length}</span>
-            <span>Words: {text.trim() ? text.trim().split(/\s+/).length : 0}</span>
+          {/* Textarea */}
+          <div className="flex-1 p-4">
+            <Textarea
+              ref={textareaRef}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={isAutoConvertEnabled ? 'Type: ahlan wa sahlan → أهلاً وسهلاً | bayt → بيت | shukran → شكراً' : 'عبر عن نفسك'}
+              className={`h-full min-h-[300px] leading-relaxed arabic-text resize-none border-gray-300 focus:border-blue-500 focus:ring-0 focus:outline-none transition-all duration-300 ${getDynamicFontSize(wordCount)} !text-current`}
+              dir="rtl"
+              lang="ar"
+            />
           </div>
-        </section>
 
-        {/* Keyboard Section */}
-        <section className="bg-white rounded-lg shadow-lg p-2" aria-label="Arabic Virtual Keyboard">
-          <LazyArabicKeyboard onKeyPress={handleKeyPress} />
-        </section>
-
-        {/* Instructions */}
-        <section className="mt-8 bg-white/80 rounded-lg p-6 text-center" aria-label="Usage Instructions">
-          <h3 className="text-lg font-semibold text-gray-700 mb-3">
-            How to Use | كيفية الاستخدام
-          </h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm text-gray-600">
-            <div>
-              <strong>Click Keys:</strong> Click on the Arabic keyboard keys to type
-            </div>
-            <div>
-              <strong>Physical Keyboard:</strong> Use your regular keyboard to type
-            </div>
-            <div>
-              <strong>Copy & Share:</strong> Use the copy button to share your text
-            </div>
-            <div>
-              <strong>Search Google:</strong> Search your Arabic text on Google
-            </div>
-            <div>
-              <strong>Search YouTube:</strong> Find videos related to your text
+          {/* Stats */}
+          <div className="p-4 border-t bg-gray-50">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Characters: {text.length}</span>
+              <span>Words: {wordCount} • Font: {getDynamicFontSize(wordCount)}</span>
             </div>
           </div>
         </section>
 
-        {/* SEO Content */}
-        <section className="mt-8 bg-white/60 rounded-lg p-6 text-sm text-gray-600" aria-label="SEO Information">
-          <h4 className="font-semibold mb-3">About Arabic Online Keyboard</h4>
-          <p className="mb-2">
-            Our free Arabic online keyboard (لوحة المفاتيح العربية) allows you to type in Arabic easily without installing any software. 
-            This virtual Arabic keyboard supports all Arabic characters and diacritics, making it perfect for writing Arabic text online.
-          </p>
-          <p className="mb-2">
-            Features include: Arabic typing, text copying, Google search integration, YouTube search, text download, 
-            and full support for right-to-left (RTL) Arabic text. Compatible with all devices and browsers.
-          </p>
-          <p>
-            Keywords: Arabic keyboard, virtual Arabic keyboard, online Arabic typing, Arabic input method, 
-            لوحة مفاتيح عربية, كتابة عربية, Arabic text editor.
-          </p>
+        {/* Right Side - Arabic Keyboard (50%) */}
+        <section className="w-full lg:w-1/2 bg-white rounded-lg shadow border flex flex-col" aria-label="Arabic Virtual Keyboard">
+          <div className="p-4 border-b">
+            <h2 className="text-lg font-semibold text-gray-900 text-center">Arabic Keyboard | لوحة المفاتيح العربية</h2>
+          </div>
+          <div className="flex-1 p-4 overflow-auto">
+            <LazyArabicKeyboard onKeyPress={handleKeyPress} />
+          </div>
         </section>
       </div>
+
+      {/* Instructions Footer */}
+      <footer className="mt-8 bg-white rounded-lg shadow border p-6">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">How to Use</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 text-sm text-gray-600">
+          <div className="text-center">
+            <strong>Standard Layout:</strong> QWERTY layout
+          </div>
+          <div className="text-center">
+            <strong>Long Press:</strong> Hold ⋯ keys for variants
+          </div>
+          <div className="text-center">
+            <strong>Auto Convert:</strong> Toggle phonetic mode
+          </div>
+          <div className="text-center">
+            <strong>Click Keys:</strong> Tap to type
+          </div>
+          <div className="text-center">
+            <strong>Search:</strong> Google & YouTube
+          </div>
+          <div className="text-center">
+            <strong>Export:</strong> Copy & download
+          </div>
+        </div>
+      </footer>
+
+      {/* History Modal */}
+      <HistoryModal 
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onLoadText={setTextDirectly}
+      />
     </main>
   );
 }
