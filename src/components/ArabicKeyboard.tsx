@@ -68,8 +68,8 @@ const arabicKeyboardLayout = [
 
 // Special keys
 const specialKeys = [
-  { key: ' ', label: 'Space', width: 'w-32' },
-  { key: '\n', label: 'Enter', width: 'w-20' },
+  { key: ' ', label: 'مسافة', width: 'w-32' },
+  { key: '\n', label: 'إدخال', width: 'w-20' },
   { key: 'backspace', label: '⌫', width: 'w-16' },
 ];
 
@@ -126,10 +126,10 @@ export const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ onKeyPress }) =>
   return (
     <div className="w-full max-w-6xl mx-auto p-4 bg-white rounded-lg border">
       <h3 className="text-lg font-semibold mb-4 text-center text-gray-900">
-        Arabic Keyboard - Standard Layout
+        لوحة المفاتيح العربية
       </h3>
       <p className="text-sm text-center text-gray-600 mb-4">
-        Standard Arabic QWERTY layout | Long press keys with ⋯ for variants
+        تخطيط QWERTY القياسي | اضغط مطوّلاً على مفاتيح ⋯ للحروف البديلة
       </p>
       
       <div className="space-y-2">

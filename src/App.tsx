@@ -88,10 +88,10 @@ function App() {
       {/* Header */}
       <header className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Arabic Online Keyboard
+          لوحة المفاتيح العربية
         </h1>
         <p className="text-gray-600 text-lg">
-          Type in Arabic using standard QWERTY layout | اكتب باللغة العربية باستخدام تخطيط QWERTY
+          اكتب باللغة العربية باستخدام تخطيط QWERTY
         </p>
       </header>
 
@@ -101,7 +101,7 @@ function App() {
         <section className="w-full lg:w-1/2 bg-white rounded-lg shadow border flex flex-col" aria-label="Arabic Text Editor">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-              <h2 className="text-lg font-semibold text-gray-900">Text Editor | محرر النصوص</h2>
+              <h2 className="text-lg font-semibold text-gray-900">محرر النصوص</h2>
               <div className="flex gap-2 flex-wrap">
                 <Button
                   variant="outline"
@@ -110,7 +110,7 @@ function App() {
                   className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                 >
                   <Clock className="w-4 h-4 mr-2" />
-                  History
+                  السجل
                 </Button>
                 <Button
                   variant="outline"
@@ -120,7 +120,7 @@ function App() {
                   className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Save
+                  حفظ
                 </Button>
                 <Button
                   variant="outline"
@@ -129,7 +129,7 @@ function App() {
                   className={isAutoConvertEnabled ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}
                 >
                   {isAutoConvertEnabled ? <ToggleRight className="w-4 h-4 mr-2" /> : <ToggleLeft className="w-4 h-4 mr-2" />}
-                  Auto Convert {isAutoConvertEnabled ? 'ON' : 'OFF'}
+                  تحويل تلقائي {isAutoConvertEnabled ? 'مفعّل' : 'معطّل'}
                 </Button>
                 <Button
                   variant="outline"
@@ -138,7 +138,7 @@ function App() {
                   className={copySuccess ? 'bg-green-50 border-green-300' : ''}
                 >
                   <Copy className="w-4 h-4 mr-2" />
-                  {copySuccess ? 'Copied!' : 'Copy'}
+                  {copySuccess ? 'تم النسخ!' : 'نسخ'}
                 </Button>
                 <Button
                   variant="outline"
@@ -147,7 +147,7 @@ function App() {
                   disabled={!text.trim()}
                 >
                   <Download className="w-4 h-4 mr-2" />
-                  Download
+                  تنزيل
                 </Button>
                 <Button
                   variant="outline"
@@ -157,7 +157,7 @@ function App() {
                   className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                 >
                   <Search className="w-4 h-4 mr-2" />
-                  Google
+                  جوجل
                 </Button>
                 <Button
                   variant="outline"
@@ -167,7 +167,7 @@ function App() {
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Youtube className="w-4 h-4 mr-2" />
-                  YouTube
+                  يوتيوب
                 </Button>
                 <Button
                   variant="outline"
@@ -177,7 +177,7 @@ function App() {
                   className="text-green-600 hover:text-green-700 hover:bg-green-50"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Convert
+                  تحويل
                 </Button>
                 <Button
                   variant="outline"
@@ -187,7 +187,7 @@ function App() {
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Clear
+                  مسح
                 </Button>
               </div>
             </div>
@@ -209,8 +209,8 @@ function App() {
           {/* Stats */}
           <div className="p-4 border-t bg-gray-50">
             <div className="flex justify-between text-sm text-gray-600">
-              <span>Characters: {text.length}</span>
-              <span>Words: {wordCount} • Font: {getDynamicFontSize(wordCount)}</span>
+              <span>الأحرف: {text.length}</span>
+              <span>الكلمات: {wordCount}</span>
             </div>
           </div>
         </section>
@@ -218,7 +218,7 @@ function App() {
         {/* Right Side - Arabic Keyboard (50%) */}
         <section className="w-full lg:w-1/2 bg-white rounded-lg shadow border flex flex-col" aria-label="Arabic Virtual Keyboard">
           <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold text-gray-900 text-center">Arabic Keyboard | لوحة المفاتيح العربية</h2>
+            <h2 className="text-lg font-semibold text-gray-900 text-center">لوحة المفاتيح العربية</h2>
           </div>
           <div className="flex-1 p-4 overflow-auto">
             <LazyArabicKeyboard onKeyPress={handleKeyPress} />
@@ -228,28 +228,13 @@ function App() {
 
       {/* Instructions Footer */}
       <footer className="mt-8 bg-white rounded-lg shadow border p-6">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">How to Use</h3>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 text-sm text-gray-600">
-          <div className="text-center">
-            <strong>Standard Layout:</strong> QWERTY layout
-          </div>
-          <div className="text-center">
-            <strong>Long Press:</strong> Hold ⋯ keys for variants
-          </div>
-          <div className="text-center">
-            <strong>Auto Convert:</strong> Toggle phonetic mode
-          </div>
-          <div className="text-center">
-            <strong>Click Keys:</strong> Tap to type
-          </div>
-          <div className="text-center">
-            <strong>Search:</strong> Google & YouTube
-          </div>
-          <div className="text-center">
-            <strong>Export:</strong> Copy & download
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-sm text-gray-600 text-center">
+          <div><strong>التخطيط:</strong> QWERTY</div>
+          <div><strong>الضغط المطوّل:</strong> حروف بديلة ⋯</div>
+          <div><strong>التحويل التلقائي:</strong> الكتابة الصوتية</div>
+          <div><strong>انقر للكتابة</strong></div>
+          <div><strong>البحث:</strong> جوجل ويوتيوب</div>
+          <div><strong>التصدير:</strong> نسخ وتنزيل</div>
         </div>
       </footer>
 
