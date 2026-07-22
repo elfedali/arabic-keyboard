@@ -8,7 +8,7 @@ import { SettingsModal } from "./components/SettingsModal";
 import { Navbar } from "./components/Navbar";
 import { useTextEditor } from "./hooks/useTextEditor";
 import { getHistory } from "./lib/localStorage";
-import { Copy, Download, Trash2, Search, Youtube, RefreshCw, ToggleLeft, ToggleRight, Clock, Save, Settings } from "lucide-react";
+import { Copy, Download, Trash2, Search, Youtube, RefreshCw, ToggleLeft, ToggleRight, Clock, Save } from "lucide-react";
 
 function App() {
   const {
@@ -46,14 +46,6 @@ function App() {
     }
   };
 
-  const toggleKeyboardLayout = () => {
-    setKeyboardLayout((prev) => {
-      const next = prev === 'QWERTY' ? 'AZERTY' : 'QWERTY';
-      localStorage.setItem('keyboard_layout', next);
-      return next;
-    });
-  };
-
   // Update history entry count
   useEffect(() => {
     const updateCount = () => {
@@ -64,16 +56,8 @@ function App() {
     return () => window.removeEventListener('storage', updateCount);
   }, [text, isHistoryOpen, activeTab]);
 
-  // Calculate word count and dynamic font size
+  // Calculate word count
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
-  
-  const getDynamicFontSize = (words: number) => {
-    if (words < 10) return 'text-2xl';
-    if (words < 15) return 'text-xl';
-    if (words < 20) return 'text-lg';
-    if (words < 30) return 'text-base';
-    return 'text-sm';
-  };
 
   // Update page title dynamically based on text content
   useEffect(() => {
