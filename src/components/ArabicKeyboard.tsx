@@ -124,14 +124,7 @@ export const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ onKeyPress }) =>
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 bg-white rounded-lg border">
-      <h3 className="text-lg font-semibold mb-4 text-center text-gray-900">
-        لوحة المفاتيح العربية
-      </h3>
-      <p className="text-sm text-center text-gray-600 mb-4">
-        تخطيط QWERTY القياسي | اضغط مطوّلاً على مفاتيح ⋯ للحروف البديلة
-      </p>
-      
+    <div className="w-full max-w-5xl mx-auto p-3 sm:p-4 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm transition-colors">
       <div className="space-y-2">
         {arabicKeyboardLayout.map((row, rowIndex) => (
           <div key={rowIndex} className="flex justify-center gap-1">
@@ -143,7 +136,9 @@ export const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ onKeyPress }) =>
                   variant="outline"
                   size="sm"
                   className={`h-12 w-10 sm:h-14 sm:w-12 md:h-16 md:w-16 p-1 arabic-keyboard-key 
-                    hover:bg-blue-50 hover:border-blue-300 active:scale-95 transition-all 
+                    bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700
+                    hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:border-blue-300 dark:hover:border-blue-700 
+                    active:scale-95 transition-all 
                     flex flex-col justify-center items-center relative
                     ${hasVariants ? 'cursor-pointer' : ''}
                   `}
@@ -161,12 +156,12 @@ export const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ onKeyPress }) =>
                   }}
                   onTouchEnd={handleMouseUp}
                 >
-                  <span className="text-base sm:text-lg font-medium text-gray-900">{keyData.label}</span>
+                  <span className="text-base sm:text-lg font-medium text-gray-900 dark:text-slate-100">{keyData.label}</span>
                   {keyData.englishKey && (
-                    <span className="text-xs text-gray-500 mt-0.5 hidden sm:block">{keyData.englishKey}</span>
+                    <span className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 hidden sm:block">{keyData.englishKey}</span>
                   )}
                   {hasVariants && (
-                    <span className="absolute top-1 right-1 text-xs text-blue-500">⋯</span>
+                    <span className="absolute top-1 right-1 text-xs text-blue-500 dark:text-blue-400">⋯</span>
                   )}
                 </Button>
               );
@@ -181,7 +176,7 @@ export const ArabicKeyboard: React.FC<ArabicKeyboardProps> = ({ onKeyPress }) =>
               key={index}
               variant="outline"
               size="sm"
-              className={`h-12 ${keyData.width} text-sm hover:bg-blue-50 hover:border-blue-300`}
+              className={`h-12 ${keyData.width} text-sm bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-900 dark:text-slate-100 hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:border-blue-300 dark:hover:border-blue-700`}
               onClick={() => handleKeyPress(keyData.key)}
             >
               {keyData.label}
