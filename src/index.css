@@ -77,60 +77,95 @@
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --background: oklch(0.18 0.025 50); /* #1c1512 - Deep dark brown */
+  --foreground: oklch(0.96 0.015 65); /* #f6efe8 - Warm cream */
+  --card: oklch(0.22 0.03 50); /* #261c17 - Rich dark espresso */
+  --card-foreground: oklch(0.96 0.015 65);
+  --popover: oklch(0.22 0.03 50);
+  --popover-foreground: oklch(0.96 0.015 65);
+  --primary: oklch(0.72 0.13 65); /* Warm amber gold */
+  --primary-foreground: oklch(0.18 0.025 50);
+  --secondary: oklch(0.28 0.035 50); /* #33251e */
+  --secondary-foreground: oklch(0.96 0.015 65);
+  --muted: oklch(0.26 0.03 50);
+  --muted-foreground: oklch(0.74 0.025 60);
+  --accent: oklch(0.28 0.035 50);
+  --accent-foreground: oklch(0.96 0.015 65);
+  --destructive: oklch(0.65 0.22 25);
+  --border: oklch(0.32 0.035 50); /* #3c2e26 - Warm brown border */
+  --input: oklch(0.32 0.035 50);
+  --ring: oklch(0.72 0.13 65);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.22 0.03 50);
+  --sidebar-foreground: oklch(0.96 0.015 65);
+  --sidebar-primary: oklch(0.72 0.13 65);
+  --sidebar-primary-foreground: oklch(0.18 0.025 50);
+  --sidebar-accent: oklch(0.28 0.035 50);
+  --sidebar-accent-foreground: oklch(0.96 0.015 65);
+  --sidebar-border: oklch(0.32 0.035 50);
+  --sidebar-ring: oklch(0.72 0.13 65);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    font-family: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
   }
+}
+
+/* Custom dark brown utility classes */
+.dark-brown-bg {
+  background-color: #1a1310;
+}
+
+/* Keycap 3D tactile depth & active animation */
+.keycap-btn {
+  box-shadow: 0 2.5px 0 0 rgba(0, 0, 0, 0.07);
+  transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.keycap-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3.5px 0 0 rgba(0, 0, 0, 0.09);
+}
+
+.keycap-btn:active {
+  transform: translateY(1.5px) !important;
+  box-shadow: 0 0 0 0 transparent !important;
+}
+
+.dark .keycap-btn {
+  box-shadow: 0 2.5px 0 0 rgba(0, 0, 0, 0.5);
+}
+
+.dark .keycap-btn:hover {
+  box-shadow: 0 3.5px 0 0 rgba(0, 0, 0, 0.7);
+}
+
+.dark .keycap-btn:active {
+  box-shadow: 0 0 0 0 transparent !important;
 }
 
 /* Arabic text styling */
 @layer components {
   .arabic-text {
-    font-family: 'Segoe UI', 'Tahoma', 'Arial Unicode MS', 'Geeza Pro', 'Traditional Arabic', serif;
+    font-family: 'Cairo', 'Tajawal', 'Segoe UI', 'Tahoma', sans-serif;
     line-height: 1.8;
     text-align: right;
     direction: rtl;
   }
   
   .arabic-keyboard-key {
-    font-family: 'Segoe UI', 'Tahoma', 'Arial Unicode MS', 'Geeza Pro', 'Traditional Arabic', serif;
+    font-family: 'Cairo', 'Tajawal', 'Segoe UI', 'Tahoma', sans-serif;
     font-size: 1.1rem;
-    font-weight: 500;
+    font-weight: 700;
   }
 }

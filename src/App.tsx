@@ -4,10 +4,11 @@ import { Textarea } from "./components/ui/textarea";
 import { LazyArabicKeyboard } from "./components/LazyArabicKeyboard";
 import { HistoryModal } from "./components/HistoryModal";
 import { HistoryView } from "./components/HistoryView";
+import { SettingsModal } from "./components/SettingsModal";
 import { Navbar } from "./components/Navbar";
 import { useTextEditor } from "./hooks/useTextEditor";
 import { getHistory } from "./lib/localStorage";
-import { Copy, Download, Trash2, Search, Youtube, RefreshCw, ToggleLeft, ToggleRight, Clock, Save } from "lucide-react";
+import { Copy, Download, Trash2, Search, Youtube, RefreshCw, ToggleLeft, ToggleRight, Clock, Save, Settings } from "lucide-react";
 
 function App() {
   const {
@@ -28,8 +29,30 @@ function App() {
 
   const [activeTab, setActiveTab] = useState<'home' | 'history'>('home');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [historyCount, setHistoryCount] = useState(0);
+
+  const [keyboardLayout, setKeyboardLayout] = useState<'QWERTY' | 'AZERTY'>(() => {
+    return (localStorage.getItem('keyboard_layout') as 'QWERTY' | 'AZERTY') || 'QWERTY';
+  });
+
+  const handleManualSaveWithToast = () => {
+    if (text.trim()) {
+      manualSave();
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2500);
+    }
+  };
+
+  const toggleKeyboardLayout = () => {
+    setKeyboardLayout((prev) => {
+      const next = prev === 'QWERTY' ? 'AZERTY' : 'QWERTY';
+      localStorage.setItem('keyboard_layout', next);
+      return next;
+    });
+  };
 
   // Update history entry count
   useEffect(() => {
@@ -45,16 +68,16 @@ function App() {
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
   
   const getDynamicFontSize = (words: number) => {
-    if (words < 10) return 'text-2xl'; // 24px - Large for short texts
-    if (words < 15) return 'text-xl';  // 20px - Medium-large
-    if (words < 20) return 'text-lg';  // 18px - Medium
-    if (words < 30) return 'text-base'; // 16px - Normal
-    return 'text-sm'; // 14px - Small for long texts
+    if (words < 10) return 'text-2xl';
+    if (words < 15) return 'text-xl';
+    if (words < 20) return 'text-lg';
+    if (words < 30) return 'text-base';
+    return 'text-sm';
   };
 
   // Update page title dynamically based on text content
   useEffect(() => {
-    const baseTitle = "Arabic Online Keyboard - Free Virtual Arabic Typing Tool";
+    const baseTitle = "لوحة المفاتيح العربية - كتابة واختبارات";
     if (text.trim()) {
       const preview = text.trim().substring(0, 30);
       document.title = `${preview}... - ${baseTitle}`;
@@ -99,55 +122,63 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 flex flex-col transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#1a1310] text-gray-900 dark:text-[#f6efe8] flex flex-col transition-colors duration-200">
       {/* Top Navigation Bar */}
       <Navbar 
         activeTab={activeTab} 
         onTabChange={setActiveTab} 
-        historyCount={historyCount} 
+        historyCount={historyCount}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      <main className="flex-1 px-4 pb-8 max-w-5xl mx-auto w-full">
+      <main className="flex-1 px-4 pb-8 max-w-7xl mx-auto w-full" dir="rtl">
         {activeTab === 'home' ? (
-          <div className="space-y-4 mt-2">
-            {/* 1. Action Buttons Bar above textarea */}
-            <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-2 transition-colors">
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <div className="space-y-4 mt-2 relative">
+            {/* Toast Feedback Notification */}
+            {(saveSuccess || copySuccess) && (
+              <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-amber-600 dark:bg-amber-500 text-white px-5 py-2.5 rounded-full shadow-xl font-bold text-sm flex items-center gap-2 transition-all animate-bounce">
+                <span>{saveSuccess ? '✓ تم حفظ النص في السجل بنجاح!' : '✓ تم نسخ النص إلى الحافظة!'}</span>
+              </div>
+            )}
+
+            {/* 1. Action Buttons Bar (Single Line Layout without duplicate actions) */}
+            <div className="bg-white dark:bg-[#251c17] p-2.5 sm:p-3 rounded-2xl border border-gray-200 dark:border-[#3d2e26] shadow-sm flex flex-nowrap items-center justify-between gap-2 overflow-x-auto transition-colors scrollbar-none">
+              <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 min-w-max">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={manualSave}
+                  onClick={handleManualSaveWithToast}
                   disabled={!text.trim()}
-                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 border-gray-200 dark:border-slate-700"
+                  className="font-bold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-[#32251f] border-gray-200 dark:border-[#3d2e26] text-xs sm:text-sm px-2.5 py-1.5"
                 >
-                  <Save className="w-4 h-4 mr-1" />
-                  حفظ
+                  <Save className="w-4 h-4 ml-1" />
+                  {saveSuccess ? 'تم الحفظ!' : 'حفظ'}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setActiveTab('history')}
-                  className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/50 border-gray-200 dark:border-slate-700"
+                  className="font-bold text-purple-600 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-[#32251f] border-gray-200 dark:border-[#3d2e26] text-xs sm:text-sm px-2.5 py-1.5"
                 >
-                  <Clock className="w-4 h-4 mr-1" />
+                  <Clock className="w-4 h-4 ml-1" />
                   السجل
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={toggleAutoConvert}
-                  className={isAutoConvertEnabled ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300' : 'border-gray-200 dark:border-slate-700 dark:text-slate-300'}
+                  className={isAutoConvertEnabled ? 'bg-blue-50 dark:bg-amber-950/60 border-blue-300 dark:border-amber-700 text-blue-700 dark:text-amber-300 font-bold text-xs sm:text-sm px-2.5 py-1.5' : 'border-gray-200 dark:border-[#3d2e26] dark:text-amber-100/70 font-bold text-xs sm:text-sm px-2.5 py-1.5'}
                 >
-                  {isAutoConvertEnabled ? <ToggleRight className="w-4 h-4 mr-1 text-blue-600 dark:text-blue-400" /> : <ToggleLeft className="w-4 h-4 mr-1" />}
+                  {isAutoConvertEnabled ? <ToggleRight className="w-4 h-4 ml-1 text-blue-600 dark:text-amber-400" /> : <ToggleLeft className="w-4 h-4 ml-1" />}
                   تحويل تلقائي {isAutoConvertEnabled ? 'مفعّل' : 'معطّل'}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleCopy}
-                  className={copySuccess ? 'bg-green-50 dark:bg-green-950/60 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300' : 'border-gray-200 dark:border-slate-700 dark:text-slate-300'}
+                  className={copySuccess ? 'bg-green-50 dark:bg-green-950/60 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 font-bold text-xs sm:text-sm px-2.5 py-1.5' : 'border-gray-200 dark:border-[#3d2e26] dark:text-amber-100/70 font-bold text-xs sm:text-sm px-2.5 py-1.5'}
                 >
-                  <Copy className="w-4 h-4 mr-1" />
+                  <Copy className="w-4 h-4 ml-1" />
                   {copySuccess ? 'تم النسخ!' : 'نسخ'}
                 </Button>
                 <Button
@@ -155,9 +186,9 @@ function App() {
                   size="sm"
                   onClick={handleDownload}
                   disabled={!text.trim()}
-                  className="border-gray-200 dark:border-slate-700 dark:text-slate-300"
+                  className="border-gray-200 dark:border-[#3d2e26] dark:text-amber-100/70 font-bold text-xs sm:text-sm px-2.5 py-1.5"
                 >
-                  <Download className="w-4 h-4 mr-1" />
+                  <Download className="w-4 h-4 ml-1" />
                   تنزيل
                 </Button>
                 <Button
@@ -165,9 +196,9 @@ function App() {
                   size="sm"
                   onClick={searchInGoogle}
                   disabled={!text.trim()}
-                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 border-gray-200 dark:border-slate-700"
+                  className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-[#32251f] border-gray-200 dark:border-[#3d2e26] font-bold text-xs sm:text-sm px-2.5 py-1.5"
                 >
-                  <Search className="w-4 h-4 mr-1" />
+                  <Search className="w-4 h-4 ml-1" />
                   جوجل
                 </Button>
                 <Button
@@ -175,9 +206,9 @@ function App() {
                   size="sm"
                   onClick={searchInYouTube}
                   disabled={!text.trim()}
-                  className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/50 border-gray-200 dark:border-slate-700"
+                  className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-[#32251f] border-gray-200 dark:border-[#3d2e26] font-bold text-xs sm:text-sm px-2.5 py-1.5"
                 >
-                  <Youtube className="w-4 h-4 mr-1" />
+                  <Youtube className="w-4 h-4 ml-1" />
                   يوتيوب
                 </Button>
                 <Button
@@ -185,9 +216,9 @@ function App() {
                   size="sm"
                   onClick={convertToArabic}
                   disabled={!text.trim()}
-                  className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/50 border-gray-200 dark:border-slate-700"
+                  className="text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-[#32251f] border-gray-200 dark:border-[#3d2e26] font-bold text-xs sm:text-sm px-2.5 py-1.5"
                 >
-                  <RefreshCw className="w-4 h-4 mr-1" />
+                  <RefreshCw className="w-4 h-4 ml-1" />
                   تحويل
                 </Button>
                 <Button
@@ -195,28 +226,28 @@ function App() {
                   size="sm"
                   onClick={handleClear}
                   disabled={!text.trim()}
-                  className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/50 border-gray-200 dark:border-slate-700"
+                  className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-[#32251f] border-gray-200 dark:border-[#3d2e26] font-bold text-xs sm:text-sm px-2.5 py-1.5"
                 >
-                  <Trash2 className="w-4 h-4 mr-1" />
+                  <Trash2 className="w-4 h-4 ml-1" />
                   مسح
                 </Button>
               </div>
 
               {/* Character & Word Counter */}
-              <div className="text-xs text-gray-500 dark:text-slate-400 font-medium px-2.5 py-1 bg-gray-100 dark:bg-slate-800 rounded-lg border border-gray-200/60 dark:border-slate-700/60">
+              <div className="text-xs text-gray-500 dark:text-amber-200/60 font-bold px-2.5 py-1 bg-gray-100 dark:bg-[#18120f] rounded-lg border border-gray-200/60 dark:border-[#382b24] min-w-max">
                 {text.length} حرف • {wordCount} كلمة
               </div>
             </div>
 
-            {/* 2. One Line Textarea Input */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/50 p-2 transition-all">
+            {/* 2. One Line Textarea Input (No Placeholder) */}
+            <div className="bg-white dark:bg-[#251c17] rounded-2xl border border-gray-200 dark:border-[#3d2e26] shadow-sm focus-within:ring-2 focus-within:ring-amber-500/50 p-2 transition-all">
               <Textarea
                 ref={textareaRef}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder={isAutoConvertEnabled ? 'Type: ahlan wa sahlan → أهلاً وسهلاً | bayt → بيت' : 'اكتب النص هنا...'}
+                placeholder=""
                 rows={1}
-                className="w-full min-h-[54px] max-h-[140px] py-2.5 px-3 text-xl font-medium leading-normal arabic-text border-none bg-transparent text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors"
+                className="w-full min-h-[54px] max-h-[140px] py-2.5 px-3 text-xl font-bold leading-normal arabic-text border-none bg-transparent text-gray-900 dark:text-[#f6efe8] focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors"
                 dir="rtl"
                 lang="ar"
               />
@@ -224,7 +255,12 @@ function App() {
 
             {/* 3. Keyboard under it */}
             <div className="pt-2">
-              <LazyArabicKeyboard onKeyPress={handleKeyPress} />
+              <LazyArabicKeyboard onKeyPress={handleKeyPress} layout={keyboardLayout} />
+              
+              {/* Sample note under the keyboard */}
+              <p className="text-center text-xs font-bold text-gray-500 dark:text-amber-200/60 pt-3">
+                ملاحظة: يمكنك الكتابة باستخدام الحروف والرموز اللاتينية وسيتم تحويلها تلقائياً إلى الكلمات العربية
+              </p>
             </div>
           </div>
         ) : (
@@ -241,9 +277,20 @@ function App() {
         onClose={() => setIsHistoryOpen(false)}
         onLoadText={setTextDirectly}
       />
+
+      {/* Global Settings Gear Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        keyboardLayout={keyboardLayout}
+        onLayoutChange={setKeyboardLayout}
+        isAutoConvertEnabled={isAutoConvertEnabled}
+        onToggleAutoConvert={toggleAutoConvert}
+      />
     </div>
   );
 }
 
 export default App;
+
 

@@ -1,58 +1,132 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { saveToHistory } from "../lib/localStorage";
 
-// English to Arabic phonetic mapping (sound-based)
-const englishToArabicMap: { [key: string]: string } = {
-  // Numbers
+// Common Arabizi & Franco-Arabic words for instant word-level replacement
+const commonWordMap: { [key: string]: string } = {
+  "ahlan": "أهلاً",
+  "ahlan wa sahlan": "أهلاً وسهلاً",
+  "shukran": "شكراً",
+  "chokran": "شكراً",
+  "choukran": "شكراً",
+  "shukran jazilan": "شكراً جزيلاً",
+  "salam": "سلام",
+  "salem": "سلام",
+  "assalam": "السلام",
+  "assalamu alaikum": "السلام عليكم",
+  "marhaba": "مرحبا",
+  "marhaban": "مرحباً",
+  "sabah": "صباح",
+  "sabah al khair": "صباح الخير",
+  "sabah al khayr": "صباح الخير",
+  "masaa": "مساء",
+  "masaa al khair": "مساء الخير",
+  "khair": "خير",
+  "khayr": "خير",
+  "kheir": "خير",
+  "habibi": "حبيبي",
+  "7abibi": "حبيبي",
+  "7abibati": "حبيبتي",
+  "kaifa": "كيف",
+  "kayf": "كيف",
+  "kifa": "كيف",
+  "kaifa halak": "كيف حالك",
+  "kayf halak": "كيف حالك",
+  "bikhair": "بخير",
+  "bikhayr": "بخير",
+  "na3am": "نعم",
+  "naam": "نعم",
+  "laa": "لا",
+  "la": "لا",
+  "inshallah": "إن شاء الله",
+  "inshaallah": "إن شاء الله",
+  "mashallah": "ما شاء الله",
+  "alhamdulillah": "الحمد لله",
+  "elhamdulillah": "الحمد لله",
+  "mabrouk": "مبروك",
+  "mabruk": "مبروك",
+  "afwan": "عفواً",
+  "min fadlak": "من فضلك",
+  "min fadlik": "من فضلك",
+  "yallah": "يلا",
+  "yalla": "يلا",
+  "wallah": "والله",
+  "walah": "والله",
+  "tbarkallah": "تبارك الله",
+};
+
+// Multi-character phonetic combinations (checked first)
+const multiCharMap: { [key: string]: string } = {
+  "th": "ث",
+  "kh": "خ",
+  "sh": "ش",
+  "gh": "غ",
+  "ch": "ش",
+  "dh": "ذ",
+  "zh": "ژ",
+  "ph": "ف",
+  "ou": "و",
+  "oo": "و",
+  "ee": "ي",
+  "aa": "آ",
+  "la": "لا",
+  "al": "ال",
+  "el": "ال",
+  "3'": "غ",
+  "9'": "ض",
+};
+
+// Single letter & number sound-based mapping
+const singleCharMap: { [key: string]: string } = {
+  // Arabizi Numbers
   "1": "١",
-  "2": "٢",
-  "3": "٣",
+  "2": "ء",
+  "3": "ع",
   "4": "٤",
-  "5": "٥",
-  "6": "٦",
-  "7": "٧",
-  "8": "٨",
-  "9": "٩",
+  "5": "خ",
+  "6": "ط",
+  "7": "ح",
+  "8": "ق",
+  "9": "ص",
   "0": "٠",
 
-  // Phonetic mapping (lowercase)
-  a: "ا", // Alif
-  b: "ب", // Ba
-  c: "ك", // Ka (closest to C sound)
-  d: "د", // Dal
-  e: "ي", // Ya (for E sound)
-  f: "ف", // Fa
-  g: "غ", // Ghayn
-  h: "ه", // Ha
-  i: "ي", // Ya (for I sound)
-  j: "ج", // Jim
-  k: "ك", // Kaf
-  l: "ل", // Lam
-  m: "م", // Mim
-  n: "ن", // Nun
-  o: "و", // Waw (for O sound)
-  p: "ب", // Ba (closest to P sound)
-  q: "ق", // Qaf
-  r: "ر", // Ra
-  s: "س", // Sin
-  t: "ت", // Ta
-  u: "و", // Waw (for U sound)
-  v: "ف", // Fa (closest to V sound)
-  w: "و", // Waw
-  x: "كس", // Kaf + Sin (X sound)
-  y: "ي", // Ya
-  z: "ز", // Zay
+  // Letters (lowercase)
+  a: "ا",
+  b: "ب",
+  c: "ك",
+  d: "د",
+  e: "ي",
+  f: "ف",
+  g: "غ",
+  h: "ه",
+  i: "ي",
+  j: "ج",
+  k: "ك",
+  l: "ل",
+  m: "م",
+  n: "ن",
+  o: "و",
+  p: "ب",
+  q: "ق",
+  r: "ر",
+  s: "س",
+  t: "ت",
+  u: "و",
+  v: "ف",
+  w: "و",
+  x: "كس",
+  y: "ي",
+  z: "ز",
 
-  // Capital letters (same mapping)
-  A: "ا",
+  // Uppercase
+  A: "أ",
   B: "ب",
   C: "ك",
-  D: "د",
-  E: "ي",
+  D: "ض",
+  E: "إ",
   F: "ف",
   G: "غ",
-  H: "ه",
-  I: "ي",
+  H: "ح",
+  I: "إ",
   J: "ج",
   K: "ك",
   L: "ل",
@@ -62,39 +136,21 @@ const englishToArabicMap: { [key: string]: string } = {
   P: "ب",
   Q: "ق",
   R: "ر",
-  S: "س",
-  T: "ت",
+  S: "ص",
+  T: "ط",
   U: "و",
   V: "ف",
   W: "و",
   X: "كس",
   Y: "ي",
-  Z: "ز",
-
-  // Special combinations for better phonetics (must be checked first)
-  th: "ث", // Tha
-  kh: "خ", // Kha
-  sh: "ش", // Shin
-  gh: "غ", // Ghayn
-  ch: "ش", // Shin (closest to CH sound)
-  dh: "ذ", // Dhal
-  Th: "ث", // Tha (capital)
-  Kh: "خ", // Kha (capital)
-  Sh: "ش", // Shin (capital)
-  Gh: "غ", // Ghayn (capital)
-  Ch: "ش", // Shin (capital)
-  Dh: "ذ", // Dhal (capital)
-  TH: "ث", // Tha (all caps)
-  KH: "خ", // Kha (all caps)
-  SH: "ش", // Shin (all caps)
-  GH: "غ", // Ghayn (all caps)
-  CH: "ش", // Shin (all caps)
-  DH: "ذ", // Dhal (all caps)
+  Z: "ظ",
 };
 
 export interface UseTextEditorReturn {
   text: string;
   setText: (text: string) => void;
+  setTextDirectly: (text: string) => void;
+  manualSave: () => void;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   insertText: (newText: string) => void;
   handleBackspace: () => void;
@@ -109,41 +165,88 @@ export interface UseTextEditorReturn {
 
 export const useTextEditor = () => {
   const [text, setText] = useState("");
-  const [isAutoConvertEnabled, setIsAutoConvertEnabled] = useState(false);
+  // Auto-convert enabled by default so typing latin letters writes arabic words
+  const [isAutoConvertEnabled, setIsAutoConvertEnabled] = useState(true);
   const [cursorPosition, setCursorPosition] = useState(0);
   const [lastSavedText, setLastSavedText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Smart auto-save to localStorage when text changes significantly
+  // Auto-save history after typing pauses
   useEffect(() => {
     if (!text.trim()) return;
 
     const timeoutId = setTimeout(() => {
-      // Only save if text has changed significantly
       const currentWords = text.trim().split(/\s+/).length;
       const lastSavedWords = lastSavedText.trim()
         ? lastSavedText.trim().split(/\s+/).length
         : 0;
 
-      // Save if:
-      // 1. No previous save, or
-      // 2. Word count increased by 3 or more, or
-      // 3. Text is significantly different (more than 20 characters difference), or
-      // 4. Text length decreased significantly (user deleted content)
       const shouldSave =
         !lastSavedText ||
         currentWords >= lastSavedWords + 3 ||
         Math.abs(text.length - lastSavedText.length) > 20 ||
-        text.length < lastSavedText.length * 0.8; // 20% reduction in length
+        text.length < lastSavedText.length * 0.8;
 
       if (shouldSave) {
         saveToHistory(text);
         setLastSavedText(text);
       }
-    }, 3000); // Increased to 3 seconds for better debouncing
+    }, 3000);
 
     return () => clearTimeout(timeoutId);
   }, [text, lastSavedText]);
+
+  // Converter function: converts Latin word/character inputs into Arabic
+  const convertEnglishToArabic = useCallback((inputText: string): string => {
+    if (!inputText) return "";
+
+    // Split input by space/punctuation preserving separators
+    const tokens = inputText.split(/(\s+)/);
+
+    return tokens
+      .map((token) => {
+        // If token is whitespace, return as is
+        if (/^\s+$/.test(token)) return token;
+
+        // Check if full word matches common dictionary
+        const lowerToken = token.toLowerCase();
+        if (commonWordMap[lowerToken]) {
+          return commonWordMap[lowerToken];
+        }
+
+        // Transliterate character by character
+        let result = "";
+        let i = 0;
+
+        while (i < token.length) {
+          let matched = false;
+
+          // Check 2-character combinations first
+          if (i < token.length - 1) {
+            const twoChar = token.slice(i, i + 2).toLowerCase();
+            if (multiCharMap[twoChar]) {
+              result += multiCharMap[twoChar];
+              i += 2;
+              matched = true;
+            }
+          }
+
+          // Single character conversion
+          if (!matched) {
+            const char = token[i];
+            if (singleCharMap[char]) {
+              result += singleCharMap[char];
+            } else {
+              result += char;
+            }
+            i += 1;
+          }
+        }
+
+        return result;
+      })
+      .join("");
+  }, []);
 
   const insertText = useCallback(
     (newText: string) => {
@@ -156,11 +259,9 @@ export const useTextEditor = () => {
       const newValue = text.slice(0, start) + newText + text.slice(end);
       setText(newValue);
 
-      // Set cursor position after the inserted text
       const newCursorPosition = start + newText.length;
       setCursorPosition(newCursorPosition);
 
-      // Focus and set cursor position
       setTimeout(() => {
         textarea.focus();
         textarea.setSelectionRange(newCursorPosition, newCursorPosition);
@@ -177,7 +278,6 @@ export const useTextEditor = () => {
     const end = textarea.selectionEnd;
 
     if (start !== end) {
-      // Delete selected text
       const newValue = text.slice(0, start) + text.slice(end);
       setText(newValue);
       setCursorPosition(start);
@@ -187,7 +287,6 @@ export const useTextEditor = () => {
         textarea.setSelectionRange(start, start);
       }, 0);
     } else if (start > 0) {
-      // Delete character before cursor
       const newValue = text.slice(0, start - 1) + text.slice(start);
       setText(newValue);
       const newCursorPosition = start - 1;
@@ -205,7 +304,6 @@ export const useTextEditor = () => {
       await navigator.clipboard.writeText(text);
       return Promise.resolve();
     } catch (err) {
-      // Fallback for older browsers
       if (textareaRef.current) {
         textareaRef.current.select();
         document.execCommand("copy");
@@ -214,43 +312,9 @@ export const useTextEditor = () => {
     }
   }, [text]);
 
-  // Function to convert English text to Arabic with proper multi-character support
-  const convertEnglishToArabic = useCallback((inputText: string): string => {
-    let result = "";
-    let i = 0;
-
-    while (i < inputText.length) {
-      let converted = false;
-
-      // Check for 2-character combinations first
-      if (i < inputText.length - 1) {
-        const twoChar = inputText.slice(i, i + 2).toLowerCase();
-        if (englishToArabicMap[twoChar]) {
-          result += englishToArabicMap[twoChar];
-          i += 2;
-          converted = true;
-        }
-      }
-
-      // If no 2-character match, check single character
-      if (!converted) {
-        const oneChar = inputText[i];
-        if (englishToArabicMap[oneChar]) {
-          result += englishToArabicMap[oneChar];
-        } else {
-          result += oneChar;
-        }
-        i += 1;
-      }
-    }
-
-    return result;
-  }, []);
-
   const handleTextChange = useCallback(
     (newText: string) => {
       if (isAutoConvertEnabled) {
-        // Convert English letters to Arabic in real-time using proper multi-character conversion
         const convertedText = convertEnglishToArabic(newText);
         setText(convertedText);
       } else {
@@ -285,7 +349,6 @@ export const useTextEditor = () => {
       const convertedText = convertEnglishToArabic(text);
       setText(convertedText);
 
-      // Focus the textarea after conversion
       setTimeout(() => {
         if (textareaRef.current) {
           textareaRef.current.focus();

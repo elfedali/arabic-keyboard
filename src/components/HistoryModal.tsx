@@ -27,7 +27,7 @@ export const HistoryModal = ({ isOpen, onClose, onLoadText }: HistoryModalProps)
   };
 
   const handleClearAll = () => {
-    if (confirm('Are you sure you want to delete all history? This action cannot be undone.')) {
+    if (confirm('هل أنت تأكد من رغبتك في حذف جميع النصوص المحفوظة؟')) {
       clearAllHistory();
       setHistory([]);
     }
@@ -55,10 +55,8 @@ export const HistoryModal = ({ isOpen, onClose, onLoadText }: HistoryModalProps)
     const element = document.createElement('a');
     const file = new Blob([text], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    
-    const date = new Date(timestamp).toLocaleDateString();
+    const date = new Date(timestamp).toLocaleDateString('ar-SA');
     element.download = `arabic-text-${date}.txt`;
-    
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -69,82 +67,83 @@ export const HistoryModal = ({ isOpen, onClose, onLoadText }: HistoryModalProps)
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1) return 'الآن';
+    if (diffInMinutes < 60) return `قبل ${diffInMinutes} دقيقة`;
     
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 24) return `قبل ${diffInHours} ساعة`;
     
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays}d ago`;
+    if (diffInDays < 7) return `قبل ${diffInDays} يوم`;
     
-    return date.toLocaleDateString();
+    return date.toLocaleDateString('ar-SA');
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-900 dark:text-slate-100">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-slate-100">
+      <DialogContent className="max-w-2xl max-h-[80vh] bg-white dark:bg-[#231b17] border-gray-200 dark:border-[#3d2e26] text-gray-900 dark:text-[#f6efe8]">
+        <DialogHeader className="text-right">
+          <DialogTitle className="flex items-center justify-end gap-2 text-gray-900 dark:text-[#f6efe8] font-bold">
+            <span>سجل النصوص المحفوظة</span>
             <Clock className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            Text History | سجل النصوص
           </DialogTitle>
-          <DialogDescription className="text-gray-500 dark:text-slate-400">
-            View and manage your previously saved texts. Click "Load" to restore text to the editor.
+          <DialogDescription className="text-gray-500 dark:text-amber-200/50 text-right">
+            استعرض النصوص المحفوظة سابقاً واضغط "استرجاع" لإعادتها إلى المحرر.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-sm text-gray-600 dark:text-slate-400">
-            {history.length} saved {history.length === 1 ? 'entry' : 'entries'}
+        <div className="flex justify-between items-center mb-4" dir="rtl">
+          <span className="text-sm font-bold text-gray-600 dark:text-amber-200/60">
+            {history.length} نصوص محفوظة
           </span>
           {history.length > 0 && (
             <Button
               variant="outline"
               size="sm"
               onClick={handleClearAll}
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/50 border-red-200 dark:border-red-900/50"
+              className="font-bold text-red-600 dark:text-red-300 hover:text-red-700 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-950/50 border-red-200 dark:border-red-900/50"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Clear All
+              <Trash2 className="w-4 h-4 ml-1.5" />
+              مسح الكل
             </Button>
           )}
         </div>
 
-        <div className="max-h-96 overflow-hidden">
+        <div className="max-h-96 overflow-hidden" dir="rtl">
           <ScrollArea className="h-96">
-            <div className="space-y-3 pr-4">
+            <div className="space-y-3 pl-4">
               {history.length === 0 ? (
-                <div className="text-center py-8 text-gray-500 dark:text-slate-400">
-                  <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No saved texts yet</p>
-                  <p className="text-sm">Start typing to automatically save your work</p>
+                <div className="text-center py-8 text-gray-500 dark:text-amber-200/50">
+                  <Clock className="w-12 h-12 mx-auto mb-3 opacity-50 text-purple-400" />
+                  <p className="font-bold text-base">لا توجد نصوص محفوظة بعد</p>
+                  <p className="text-sm">ابدأ الكتابة لحفظ نصوصك تلقائياً</p>
                 </div>
               ) : (
                 history.map((entry) => (
                   <div
                     key={entry.id}
-                    className="border border-gray-200 dark:border-slate-800 rounded-lg p-4 bg-gray-50/50 dark:bg-slate-800/40 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+                    className="border border-gray-200 dark:border-[#3d2e26] rounded-xl p-4 bg-gray-50/50 dark:bg-[#1c1512] hover:bg-gray-100 dark:hover:bg-[#2a1e18] transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-500 dark:text-slate-400 mb-1">
+                        <p className="text-sm text-gray-500 dark:text-amber-200/50 mb-1 font-medium">
                           {formatDate(entry.timestamp)}
                         </p>
                         <p 
-                          className="text-gray-900 dark:text-slate-100 leading-relaxed arabic-text" 
+                          className="text-gray-900 dark:text-[#f6efe8] leading-relaxed arabic-text font-bold" 
                           dir="rtl"
                           style={{ wordBreak: 'break-word' }}
                         >
                           {entry.preview}
                         </p>
                       </div>
-                      <div className="flex gap-1 ml-3 flex-shrink-0">
+                      <div className="flex gap-1 mr-3 flex-shrink-0">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleLoad(entry.id)}
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 border-gray-200 dark:border-slate-700"
+                          title="استرجاع"
+                          className="text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-[#352720] border-gray-200 dark:border-[#3d2e26]"
                         >
                           <RotateCcw className="w-4 h-4" />
                         </Button>
@@ -152,7 +151,8 @@ export const HistoryModal = ({ isOpen, onClose, onLoadText }: HistoryModalProps)
                           variant="outline"
                           size="sm"
                           onClick={() => handleCopy(entry.text, entry.id)}
-                          className={copySuccess === entry.id ? 'bg-green-50 dark:bg-green-950/60 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300' : 'border-gray-200 dark:border-slate-700 dark:text-slate-300'}
+                          title="نسخ"
+                          className={copySuccess === entry.id ? 'bg-green-50 dark:bg-green-950/60 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300' : 'border-gray-200 dark:border-[#3d2e26] dark:text-[#f6efe8]'}
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
@@ -160,7 +160,8 @@ export const HistoryModal = ({ isOpen, onClose, onLoadText }: HistoryModalProps)
                           variant="outline"
                           size="sm"
                           onClick={() => handleDownload(entry.text, entry.timestamp)}
-                          className="border-gray-200 dark:border-slate-700 dark:text-slate-300"
+                          title="تنزيل"
+                          className="border-gray-200 dark:border-[#3d2e26] dark:text-[#f6efe8]"
                         >
                           <Download className="w-4 h-4" />
                         </Button>
@@ -168,14 +169,15 @@ export const HistoryModal = ({ isOpen, onClose, onLoadText }: HistoryModalProps)
                           variant="outline"
                           size="sm"
                           onClick={() => handleDelete(entry.id)}
-                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/50 border-red-200 dark:border-red-900/50"
+                          title="حذف"
+                          className="text-red-600 dark:text-red-300 hover:text-red-700 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-950/50 border-red-200 dark:border-red-900/50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-slate-400">
-                      {entry.text.length} characters • {entry.text.trim().split(/\s+/).length} words
+                    <div className="text-xs text-gray-500 dark:text-amber-200/40 font-medium">
+                      {entry.text.length} حرف • {entry.text.trim().split(/\s+/).length} كلمة
                     </div>
                   </div>
                 ))
